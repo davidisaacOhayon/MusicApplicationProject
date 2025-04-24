@@ -49,14 +49,20 @@ public class SongHelper extends SQLiteOpenHelper {
         return "DROP TABLE IF EXISTS " + SongContract.SongEntry.TABLE_NAME;
     }
 
-    public void initiateTables(){
-        if (getSongs().isEmpty()){
-            this.insertSong(new SongItem("OverCompensate", "Rock", "TwentyOnePoint5Pilots"));
-            this.insertSong(new SongItem("This Hate", "Pop", "Maroon 4"));
-            this.insertSong(new SongItem("Test Song", "Rock", "idklol"));
-            this.insertSong(new SongItem("Test Song", "Rock", "idklol"));
-            this.insertSong(new SongItem("Test Song", "Rock", "idklol"));
+    public void initiateTables(boolean reset){
+        SQLiteDatabase db = this.getWritableDatabase();
 
+        if (reset){
+            db.execSQL(dropTables());
+            onCreate(db);
+        }
+
+        if (getSongs().isEmpty()){
+            this.insertSong(new SongItem("Ready Or Not", "Rock", "Infraction"));
+            this.insertSong(new SongItem("Majestic Vision", "PianoIdk", "Infraction"));
+            this.insertSong(new SongItem("Test Song", "Rock", "idklol"));
+            this.insertSong(new SongItem("Test Song", "Rock", "idklol"));
+            this.insertSong(new SongItem("Test Song", "Rock", "idklol"));
         }
     }
 

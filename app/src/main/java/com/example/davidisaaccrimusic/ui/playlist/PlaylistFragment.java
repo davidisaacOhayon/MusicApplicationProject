@@ -41,8 +41,8 @@ public class PlaylistFragment extends Fragment {
         // Instantiate SongHelper for DB access
         SongHelper dbHelper = new SongHelper(requireContext());
 
-        // Ensure database is full
-        dbHelper.initiateTables();
+        // Ensure database is full (note: Reset boolean clears DB before init, set to true only during database changes)
+        dbHelper.initiateTables(true);
 
         // Fill up Playlists
         SongList suggestedList = dbHelper.getSongsRandom(5, "Suggested");
@@ -57,6 +57,7 @@ public class PlaylistFragment extends Fragment {
 
         // instantiate ViewModel
         SongLibraryViewModel sharedViewModel = new ViewModelProvider(requireActivity()).get(SongLibraryViewModel.class);
+
         // Set global song library
         sharedViewModel.setPlayList(songLibrary);
 

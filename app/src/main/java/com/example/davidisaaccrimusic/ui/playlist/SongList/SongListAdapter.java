@@ -1,5 +1,6 @@
 package com.example.davidisaaccrimusic.ui.playlist.SongList;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.davidisaaccrimusic.R;
+import com.example.davidisaaccrimusic.SongMenuActivity;
 import com.example.davidisaaccrimusic.ui.playlist.SongItem.SongItem;
 
 import java.util.List;
@@ -28,11 +30,31 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.SongVi
         return new SongViewHolder(view);
     }
 
+
+    // Configures for every single Song Item
     @Override
     public void onBindViewHolder(@NonNull SongViewHolder holder, int position) {
+        // Get respective song item at position
         SongItem song = songs.get(position);
+        // Set the title and artist text on the layout item (song_item.xml)
         holder.title.setText(song.getTitle());
         holder.artist.setText(song.getArtist());
+
+        // Instantiate an OnClickListener for every item
+        holder.itemView.setOnClickListener( v -> {
+            // Create new intent to allow each music item to redirect to SongMenuActivity
+            Intent intent = new Intent(v.getContext(), SongMenuActivity.class);
+
+            // Return each attribute of song item class
+            intent.putExtra("title", song.getTitle());
+            intent.putExtra("genre", song.getGenre());
+            intent.putExtra("artist", song.getArtist());
+            intent.putExtra("id", song.getId());
+            // start a new intent with the data returned being passed on to the new activity
+            v.getContext().startActivity(intent);
+        });
+
+
     }
 
     @Override
