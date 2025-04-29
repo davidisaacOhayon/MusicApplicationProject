@@ -16,11 +16,16 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.davidisaaccrimusic.ui.SongLibraryViewModel;
+
 
 public class SongMenuActivity extends AppCompatActivity {
 
     static MediaPlayer mediaPlayer;
     static Button playBtn;
+    static Button favBtn;
+
+    static SongLibraryViewModel sharedModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +33,7 @@ public class SongMenuActivity extends AppCompatActivity {
         setContentView(R.layout.activity_songmenu);
         Intent intent = getIntent();
         playBtn = findViewById(R.id.play_button);
+        favBtn = findViewById(R.id.favorite_button);
 
         // Reset Song player
 
@@ -58,11 +64,11 @@ public class SongMenuActivity extends AppCompatActivity {
 
         int resId = getResources().getIdentifier(file_id, "raw", getPackageName());
 
-
         mediaPlayer = MediaPlayer.create(this , resId );
         mediaPlayer.start();
 
         playBtn.setOnClickListener(new View.OnClickListener(){
+
             @Override
             public void onClick(View v){
                 if (mediaPlayer.isPlaying()){
@@ -72,10 +78,21 @@ public class SongMenuActivity extends AppCompatActivity {
                     playBtn.setBackground(ContextCompat.getDrawable(SongMenuActivity.this, R.drawable.pausebutton));
                     mediaPlayer.start();
                 }
+            }
 
+        });
 
+        favBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                if (sharedModel.checkIfFavorited((long)id)){
+                    favBtn.setBackground(ContextCompat.getDrawable(SongMenuActivity.this, R.drawable.favoritebutton));
+                    sharedModel.removeFromFavorite((long)id);
+                }else{
+                    favBtn.setBackground(ContextCompat.getDrawable(SongMenuActivity.this, R.drawable.unfavoritebutton));
+                    sharedModel.addToFavorite((long)id);
 
-
+                }
             }
         });
     }

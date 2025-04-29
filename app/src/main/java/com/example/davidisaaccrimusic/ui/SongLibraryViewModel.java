@@ -39,6 +39,18 @@ public class SongLibraryViewModel extends ViewModel {
         recentsPlaylist.setValue(songHelper.getRecents());
     }
 
+    public void addToFavorite(long song_id){
+        songHelper.addToFavorites(song_id);
+    }
+
+    public void removeFromFavorite(long song_id){
+        songHelper.removeFromFavorites(song_id);
+    }
+
+    public boolean checkIfFavorited(long song_id){
+        return songHelper.checkIfFavorited((song_id));
+    }
+
     public LiveData<SongList> getRecentsList(){
         return recentsPlaylist;
     }

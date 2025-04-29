@@ -51,7 +51,6 @@ public class PlaylistFragment extends Fragment {
         SongList suggestedList = dbHelper.getSongsRandom(5, "Suggested");
         SongList trendingList = dbHelper.getSongsRandom(5, "Trending");
         SongList recentList = dbHelper.getRecents();
-        Log.d("SongHelper", "Recent list size: " + recentList.getSongs().size());
 
 
         // Include playlists into song library

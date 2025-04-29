@@ -38,8 +38,15 @@ public class SongHelper extends SQLiteOpenHelper {
                 + " FOREIGN KEY (" + SongContract.RecentsEntry.COLUMN_NAME_SONG_ID + ") "+
                 "REFERENCES " + SongContract.SongEntry.TABLE_NAME + " (" + SongContract.SongEntry._ID + "));";
 
+        String CREATE_FAVORITES_TABLE = "CREATE TABLE " + SongContract.FavoritesPlayList.TABLE_NAME + " (" +
+                SongContract.FavoritesPlayList._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                SongContract.FavoritesPlayList.COLUMN_NAME_SONG_ID + " INTEGER, "
+                + " FOREIGN KEY (" + SongContract.FavoritesPlayList.COLUMN_NAME_SONG_ID + ") "+
+                "REFERENCES " + SongContract.SongEntry.TABLE_NAME + " (" + SongContract.SongEntry._ID + "));";
+
         db.execSQL(CREATE_SONGS_TABLE);
         db.execSQL(CREATE_RECENTS_TABLE);
+        db.execSQL(CREATE_FAVORITES_TABLE);
 
     }
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
@@ -61,6 +68,7 @@ public class SongHelper extends SQLiteOpenHelper {
         if (reset){
             db.execSQL("DROP TABLE IF EXISTS " + SongContract.SongEntry.TABLE_NAME + ";");
             db.execSQL("DROP TABLE IF EXISTS " + SongContract.RecentsEntry.TABLE_NAME + ";");
+            db.execSQL("DROP TABLE IF EXISTS " + SongContract.FavoritesPlayList.TABLE_NAME + ";");
         }
         onCreate(db);
 
@@ -123,6 +131,70 @@ public class SongHelper extends SQLiteOpenHelper {
 
     }
 
+    public void addToFavorites(long song_id){
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        values.put(SongContract.FavoritesPlayList.COLUMN_NAME_SONG_ID, song_id);
+
+        db.insert(SongContract.FavoritesPlayList.TABLE_NAME, null ,values);
+
+        db.close();
+
+
+    }
+
+    public void removeFromFavorites(long song_id){
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(
+                SongContract.FavoritesPlayList.TABLE_NAME,
+                SongContract.FavoritesPlayList.COLUMN_NAME_SONG_ID + " = ?",
+                new String[]{String.valueOf(song_id)}
+        );
+        db.close();
+    }
+
+    public boolean checkIfFavorited(long song_id){
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT 1 FROM " + SongContract.FavoritesPlayList.TABLE_NAME + " WHERE "
+                + SongContract.FavoritesPlayList.COLUMN_NAME_SONG_ID + " = ?";
+
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(song_id)});
+
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+        db.close();
+        return exists;
+    }
+
+    public SongList getFavorites(){
+        ArrayList<SongItem> songs = new ArrayList<>();
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        String query = "SELECT s._id, s._title, s._genre, s._artist " +
+                "FROM " + SongContract.FavoritesPlayList.TABLE_NAME + " r " +
+                "INNER JOIN " + SongContract.SongEntry.TABLE_NAME + " s " +
+                "ON r." + SongContract.FavoritesPlayList.COLUMN_NAME_SONG_ID + " = s." + SongContract.SongEntry._ID + " " +
+                "ORDER BY r." + SongContract.FavoritesPlayList._ID + " DESC";
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        if(cursor.moveToFirst()){
+            do{
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(SongContract.SongEntry._ID));
+                String title = cursor.getString(cursor.getColumnIndexOrThrow(SongContract.SongEntry.COLUMN_NAME_TITLE));
+                String artist = cursor.getString(cursor.getColumnIndexOrThrow(SongContract.SongEntry.COLUMN_NAME_ARTIST));
+                String genre = cursor.getString(cursor.getColumnIndexOrThrow(SongContract.SongEntry.COLUMN_NAME_GENRE));
+                songs.add(new SongItem(title, id, genre, artist));
+            } while(cursor.moveToNext());
+        }
+        cursor.close();
+
+        return new SongList("Recents", songs);
+
+    }
     public SongList getRecents(){
         ArrayList<SongItem> songs = new ArrayList<>();
         SQLiteDatabase db = this.getWritableDatabase();
@@ -147,7 +219,6 @@ public class SongHelper extends SQLiteOpenHelper {
         cursor.close();
 
         return new SongList("Recents", songs);
-
 
     }
 
