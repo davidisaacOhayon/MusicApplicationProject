@@ -16,6 +16,11 @@ public class SongList{
     public SongList(String title){
         this.list_title = title;
     }
+
+    public SongList(String title, List<SongItem> songs){
+        this.songs = songs;
+        this.list_title = title;
+    }
     public void add(SongItem newSong){
         songs.add(newSong);
     }

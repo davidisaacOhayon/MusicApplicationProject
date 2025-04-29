@@ -44,10 +44,9 @@ public class SongListFragment extends Fragment {
 
         sharedViewModel.getPlaylists().observe(getViewLifecycleOwner(), songLists -> {
             if (songLists != null) {
-                recyclerView.setAdapter(new PlaylistAdapter(songLists)); // one row per SongList
+                recyclerView.setAdapter(new PlaylistAdapter(songLists, sharedViewModel)); // one row per SongList
             }
         });
-        recyclerView.setAdapter(new SongListAdapter(songs));
 
         return view;
     }
@@ -60,9 +59,7 @@ public class SongListFragment extends Fragment {
     }
 
     private LiveData<List<SongList>> getSongs(){
-        SongLibraryViewModel sharedViewModel = new ViewModelProvider(requireActivity()).get(SongLibraryViewModel.class);
-        LiveData<List<SongList>> songLibrary = sharedViewModel.getPlaylists();
-        return songLibrary;
+        return sharedViewModel.getPlaylists();
     }
 
 }

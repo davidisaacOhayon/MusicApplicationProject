@@ -26,7 +26,21 @@ public class SongHelper extends SQLiteOpenHelper {
     }
 
     public void onCreate(SQLiteDatabase db){
-        db.execSQL(createTables());
+        String CREATE_SONGS_TABLE =  "CREATE TABLE " + SongContract.SongEntry.TABLE_NAME + " (" +
+                SongContract.SongEntry._ID + " INTEGER PRIMARY KEY, " +
+                _title + " varchar, " +
+                _artist + " varchar, " +
+                _genre + " varchar)";
+
+        String CREATE_RECENTS_TABLE = "CREATE TABLE " + SongContract.RecentsEntry.TABLE_NAME + " (" +
+                SongContract.RecentsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                SongContract.RecentsEntry.COLUMN_NAME_SONG_ID + " INTEGER, "
+                + " FOREIGN KEY (" + SongContract.RecentsEntry.COLUMN_NAME_SONG_ID + ") "+
+                "REFERENCES " + SongContract.SongEntry.TABLE_NAME + " (" + SongContract.SongEntry._ID + "));";
+
+        db.execSQL(CREATE_SONGS_TABLE);
+        db.execSQL(CREATE_RECENTS_TABLE);
+
     }
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion){
         db.execSQL(dropTables());
@@ -37,25 +51,18 @@ public class SongHelper extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    private String createTables(){
-        return "CREATE TABLE " + SongContract.SongEntry.TABLE_NAME + " (" +
-                SongContract.SongEntry._ID + " INTEGER PRIMARY KEY, " +
-                _title + " varchar, " +
-                _artist + " varchar, " +
-                _genre + " varchar)";
-    }
-
     private String dropTables(){
-        return "DROP TABLE IF EXISTS " + SongContract.SongEntry.TABLE_NAME;
+        return "DROP TABLE IF EXISTS " + SongContract.SongEntry.TABLE_NAME + ";" + " DROP TABLE IF EXISTS " + SongContract.RecentsEntry.TABLE_NAME + ";";
     }
 
     public void initiateTables(boolean reset){
         SQLiteDatabase db = this.getWritableDatabase();
 
         if (reset){
-            db.execSQL(dropTables());
-            onCreate(db);
+            db.execSQL("DROP TABLE IF EXISTS " + SongContract.SongEntry.TABLE_NAME + ";");
+            db.execSQL("DROP TABLE IF EXISTS " + SongContract.RecentsEntry.TABLE_NAME + ";");
         }
+        onCreate(db);
 
         if (getSongs().isEmpty()){
             this.insertSong(new SongItem("Ready Or Not", "Rock", "Infraction"));
@@ -65,6 +72,8 @@ public class SongHelper extends SQLiteOpenHelper {
             this.insertSong(new SongItem("Test Song", "Rock", "idklol"));
         }
     }
+
+
 
     // For Simulation Purposes, the Suggested, Trending other playlists will be randomized.
     public SongList getSongsRandom(int no, String pTitle){
@@ -99,6 +108,47 @@ public class SongHelper extends SQLiteOpenHelper {
         long id = db.insert(SongContract.SongEntry.TABLE_NAME, null, values);
 
         return id;
+    }
+
+    public void addToRecents(long song_id){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+
+        values.put(SongContract.RecentsEntry.COLUMN_NAME_SONG_ID, song_id);
+
+        db.insert(SongContract.RecentsEntry.TABLE_NAME, null ,values);
+
+        db.close();
+
+    }
+
+    public SongList getRecents(){
+        ArrayList<SongItem> songs = new ArrayList<>();
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        String query = "SELECT s._id, s._title, s._genre, s._artist " +
+                "FROM " + SongContract.RecentsEntry.TABLE_NAME + " r " +
+                "INNER JOIN " + SongContract.SongEntry.TABLE_NAME + " s " +
+                "ON r." + SongContract.RecentsEntry.COLUMN_NAME_SONG_ID + " = s." + SongContract.SongEntry._ID + " " +
+                "ORDER BY r." + SongContract.RecentsEntry._ID + " DESC";
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        if(cursor.moveToFirst()){
+            do{
+                int id = cursor.getInt(cursor.getColumnIndexOrThrow(SongContract.SongEntry._ID));
+                String title = cursor.getString(cursor.getColumnIndexOrThrow(SongContract.SongEntry.COLUMN_NAME_TITLE));
+                String artist = cursor.getString(cursor.getColumnIndexOrThrow(SongContract.SongEntry.COLUMN_NAME_ARTIST));
+                String genre = cursor.getString(cursor.getColumnIndexOrThrow(SongContract.SongEntry.COLUMN_NAME_GENRE));
+                songs.add(new SongItem(title, id, genre, artist));
+            } while(cursor.moveToNext());
+        }
+        cursor.close();
+
+        return new SongList("Recents", songs);
+
+
     }
 
     public ArrayList<SongItem> getSongs(){

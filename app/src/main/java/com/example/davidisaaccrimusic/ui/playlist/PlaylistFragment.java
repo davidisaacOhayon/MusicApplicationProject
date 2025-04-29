@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +28,8 @@ import java.util.List;
 public class PlaylistFragment extends Fragment {
 
     private PlaylistViewModel mViewModel;
+
+    private SongLibraryViewModel sharedViewModel;
 
     public List<SongList> songLibrary = new ArrayList<>();
 
@@ -47,7 +50,8 @@ public class PlaylistFragment extends Fragment {
         // Fill up Playlists
         SongList suggestedList = dbHelper.getSongsRandom(5, "Suggested");
         SongList trendingList = dbHelper.getSongsRandom(5, "Trending");
-        SongList recentList = dbHelper.getSongsRandom(0, "Recents");
+        SongList recentList = dbHelper.getRecents();
+        Log.d("SongHelper", "Recent list size: " + recentList.getSongs().size());
 
 
         // Include playlists into song library
@@ -56,7 +60,7 @@ public class PlaylistFragment extends Fragment {
         songLibrary.add(recentList);
 
         // instantiate ViewModel
-        SongLibraryViewModel sharedViewModel = new ViewModelProvider(requireActivity()).get(SongLibraryViewModel.class);
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(SongLibraryViewModel.class);
 
         // Set global song library
         sharedViewModel.setPlayList(songLibrary);
@@ -65,7 +69,7 @@ public class PlaylistFragment extends Fragment {
         //
         RecyclerView recyclerView = view.findViewById(R.id.playlist_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(new PlaylistAdapter(songLibrary));
+        recyclerView.setAdapter(new PlaylistAdapter(songLibrary, sharedViewModel));
 
         return view;
 
