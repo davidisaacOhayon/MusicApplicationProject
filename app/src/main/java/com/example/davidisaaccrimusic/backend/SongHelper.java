@@ -69,15 +69,15 @@ public class SongHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS " + SongContract.SongEntry.TABLE_NAME + ";");
             db.execSQL("DROP TABLE IF EXISTS " + SongContract.RecentsEntry.TABLE_NAME + ";");
             db.execSQL("DROP TABLE IF EXISTS " + SongContract.FavoritesPlayList.TABLE_NAME + ";");
+            onCreate(db);
         }
-        onCreate(db);
+
 
         if (getSongs().isEmpty()){
             this.insertSong(new SongItem("Ready Or Not", "Rock", "Infraction"));
             this.insertSong(new SongItem("Majestic Vision", "PianoIdk", "Infraction"));
-            this.insertSong(new SongItem("Test Song", "Rock", "idklol"));
-            this.insertSong(new SongItem("Test Song", "Rock", "idklol"));
-            this.insertSong(new SongItem("Test Song", "Rock", "idklol"));
+            this.insertSong(new SongItem("Paradize", "Pop", "ZimPL"));
+            this.insertSong(new SongItem("Fresh Sunset", "Pop", "Simon More"));
         }
     }
 
@@ -104,7 +104,6 @@ public class SongHelper extends SQLiteOpenHelper {
         return songList;
 
     }
-
     public long insertSong(SongItem song){
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
@@ -119,16 +118,32 @@ public class SongHelper extends SQLiteOpenHelper {
     }
 
     public void addToRecents(long song_id){
+
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
+
+        String query = "SELECT " + SongContract.RecentsEntry.COLUMN_NAME_SONG_ID +
+                " FROM " + SongContract.RecentsEntry.TABLE_NAME;
+
+        Cursor cursor = db.rawQuery(query, null);
+
+        while (cursor.moveToNext()){
+            long id = cursor.getLong(cursor.getColumnIndexOrThrow(SongContract.RecentsEntry.COLUMN_NAME_SONG_ID));
+            if (song_id == id){
+                cursor.close();
+                db.close();
+                return;
+            }
+        }
+
+        cursor.close();
 
         values.put(SongContract.RecentsEntry.COLUMN_NAME_SONG_ID, song_id);
 
         db.insert(SongContract.RecentsEntry.TABLE_NAME, null ,values);
 
         db.close();
-
     }
 
     public void addToFavorites(long song_id){
@@ -192,7 +207,7 @@ public class SongHelper extends SQLiteOpenHelper {
         }
         cursor.close();
 
-        return new SongList("Recents", songs);
+        return new SongList("Favorites", songs);
 
     }
     public SongList getRecents(){

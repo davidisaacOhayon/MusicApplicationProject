@@ -3,6 +3,7 @@ package com.example.davidisaaccrimusic;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -15,20 +16,27 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 
+import com.example.davidisaaccrimusic.backend.SongHelper;
 import com.example.davidisaaccrimusic.ui.SongLibraryViewModel;
 
 
 public class SongMenuActivity extends AppCompatActivity {
 
-    static MediaPlayer mediaPlayer;
-    static Button playBtn;
-    static Button favBtn;
+    private MediaPlayer mediaPlayer;
 
-    static SongLibraryViewModel sharedModel;
+    private boolean isPrepared = false;
+    private Button playBtn;
+    private Button favBtn;
+
+    private SongLibraryViewModel sharedViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        SongHelper songhelper = new SongHelper(this);
+        sharedViewModel = new ViewModelProvider(this).get(SongLibraryViewModel.class);
+        sharedViewModel.setSongHelper(songhelper);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_songmenu);
         Intent intent = getIntent();
@@ -65,6 +73,20 @@ public class SongMenuActivity extends AppCompatActivity {
         int resId = getResources().getIdentifier(file_id, "raw", getPackageName());
 
         mediaPlayer = MediaPlayer.create(this , resId );
+
+        try {
+            mediaPlayer.setDataSource(getResources().openRawResourceFd(resId));
+            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener(){
+                @Override
+                public void onPrepared(MediaPlayer mp){
+                    isPrepared = true;
+                    mediaPlayer.start();
+                }
+            });
+            mediaPlayer.prepareAsync();
+        }catch (Exception e){
+
+        }
         mediaPlayer.start();
 
         playBtn.setOnClickListener(new View.OnClickListener(){
@@ -82,20 +104,49 @@ public class SongMenuActivity extends AppCompatActivity {
 
         });
 
+        // Initialize FavBtn
+        if(sharedViewModel.checkIfFavorited((long)id)){
+            favBtn.setBackground(ContextCompat.getDrawable(SongMenuActivity.this, R.drawable.unfavoritebutton));
+        }
+
         favBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                if (sharedModel.checkIfFavorited((long)id)){
+                // If song is already favorited
+                if (sharedViewModel.checkIfFavorited((long)id)){
+
                     favBtn.setBackground(ContextCompat.getDrawable(SongMenuActivity.this, R.drawable.favoritebutton));
-                    sharedModel.removeFromFavorite((long)id);
+
+                    sharedViewModel.removeFromFavorite((long)id);
+
+                // If song isnt favorited
                 }else{
                     favBtn.setBackground(ContextCompat.getDrawable(SongMenuActivity.this, R.drawable.unfavoritebutton));
-                    sharedModel.addToFavorite((long)id);
+
+                    sharedViewModel.addToFavorite((long)id);
 
                 }
             }
         });
     }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        if (mediaPlayer != null){
+            try {
+                if (mediaPlayer.isPlaying()){
+                    mediaPlayer.stop();
+                }
+                mediaPlayer.release();
+                mediaPlayer = null;
+                isPrepared = false;
+            }catch (Exception e ){
+                e.printStackTrace();
+            }
+        }
+    }
+
 
 
 }

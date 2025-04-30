@@ -31,7 +31,9 @@ public class PlaylistFragment extends Fragment {
 
     private SongLibraryViewModel sharedViewModel;
 
-    public List<SongList> songLibrary = new ArrayList<>();
+
+
+
 
     public static PlaylistFragment newInstance() {
         return new PlaylistFragment();
@@ -45,30 +47,20 @@ public class PlaylistFragment extends Fragment {
         SongHelper dbHelper = new SongHelper(requireContext());
 
         // Ensure database is full (note: Reset boolean clears DB before init, set to true only during database changes)
-        dbHelper.initiateTables(true);
+        dbHelper.initiateTables(false);
 
-        // Fill up Playlists
-        SongList suggestedList = dbHelper.getSongsRandom(5, "Suggested");
-        SongList trendingList = dbHelper.getSongsRandom(5, "Trending");
-        SongList recentList = dbHelper.getRecents();
-
-
-        // Include playlists into song library
-        songLibrary.add(suggestedList);
-        songLibrary.add(trendingList);
-        songLibrary.add(recentList);
 
         // instantiate ViewModel
         sharedViewModel = new ViewModelProvider(requireActivity()).get(SongLibraryViewModel.class);
 
+        // initialize playlist data
+        sharedViewModel.loadPlaylistData(dbHelper, true);
         // Set global song library
-        sharedViewModel.setPlayList(songLibrary);
-
 
         //
         RecyclerView recyclerView = view.findViewById(R.id.playlist_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(new PlaylistAdapter(songLibrary, sharedViewModel));
+        recyclerView.setAdapter(new PlaylistAdapter(sharedViewModel));
 
         return view;
 

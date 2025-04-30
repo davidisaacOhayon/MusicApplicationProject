@@ -23,11 +23,12 @@ import java.util.List;
 
 
 public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.PlayListViewHolder> {
-    List<SongList> songLists;
     private SongLibraryViewModel sharedViewModel;
 
-    public PlaylistAdapter(List<SongList> songLibrary, SongLibraryViewModel sharedViewModel) {
-        this.songLists = songLibrary;
+
+
+    public PlaylistAdapter( SongLibraryViewModel sharedViewModel) {
+
         this.sharedViewModel = sharedViewModel;
     }
 
@@ -42,9 +43,9 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.PlayLi
 
     @Override
     public void onBindViewHolder(@NonNull PlayListViewHolder holder, int position) {
-
         // Iterate through each songList
-        SongList songList = songLists.get(position);
+        SongList songList = sharedViewModel.getPlaylist(position);
+
         // Set title for each fragment of each Song list (Suggested, Trending, etc.)
         holder.title.setText(songList.getTitle());
 
@@ -70,7 +71,7 @@ public class PlaylistAdapter extends RecyclerView.Adapter<PlaylistAdapter.PlayLi
 
     @Override
     public int getItemCount() {
-        return songLists.size();
+        return sharedViewModel.size();
     }
 
     class PlayListViewHolder extends RecyclerView.ViewHolder {

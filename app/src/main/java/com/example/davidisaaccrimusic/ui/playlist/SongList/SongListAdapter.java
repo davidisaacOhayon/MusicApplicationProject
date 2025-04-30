@@ -56,6 +56,7 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.SongVi
             SongHelper dbHelper = new SongHelper(v.getContext());
 
             dbHelper.addToRecents(song.getId());
+            sharedViewmodel.updateRecents();
 
             // Return each attribute of song item class
             intent.putExtra("title", song.getTitle());
