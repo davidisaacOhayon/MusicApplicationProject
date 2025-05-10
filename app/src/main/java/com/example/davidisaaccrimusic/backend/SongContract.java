@@ -15,8 +15,19 @@ public class SongContract {
         public static final String COLUMN_NAME_ARTIST = "_artist";
 
 
+    }
+
+    public static class RecentsEntry implements BaseColumns{
+
+        public static final String TABLE_NAME = "recents";
+        public static final String COLUMN_NAME_SONG_ID = "_song_id";
+    }
 
 
+    public static class FavoritesPlayList implements BaseColumns {
 
+        public static final String TABLE_NAME = "favorites_playlist";
+
+        public static final String COLUMN_NAME_SONG_ID = "_song_id";
     }
 }

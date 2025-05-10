@@ -15,7 +15,8 @@
         android:layout_height="wrap_content"
         android:text="Suggested"
         android:textColor="@color/white"
-        android:textSize="30dp" />
+        android:textSize="30dp"
+        android:textStyle="bold"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/song_list_recycler"
@@ -23,7 +24,6 @@
         android:layout_height="wrap_content"
         android:clipToPadding="false"
         android:overScrollMode="never"
-        android:padding="8dp"
         tools:listitem="@layout/song_item"
         app:layout_constraintTop_toBottomOf="@id/song_list_title"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

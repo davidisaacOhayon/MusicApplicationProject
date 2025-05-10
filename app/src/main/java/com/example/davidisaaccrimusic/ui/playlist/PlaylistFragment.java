@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +29,11 @@ public class PlaylistFragment extends Fragment {
 
     private PlaylistViewModel mViewModel;
 
-    public List<SongList> songLibrary = new ArrayList<>();
+    private SongLibraryViewModel sharedViewModel;
+
+
+
+
 
     public static PlaylistFragment newInstance() {
         return new PlaylistFragment();
@@ -41,30 +46,21 @@ public class PlaylistFragment extends Fragment {
         // Instantiate SongHelper for DB access
         SongHelper dbHelper = new SongHelper(requireContext());
 
-        // Ensure database is full
-        dbHelper.initiateTables();
+        // Ensure database is full (note: Reset boolean clears DB before init, set to true only during database changes)
+        dbHelper.initiateTables(false);
 
-        // Fill up Playlists
-        SongList suggestedList = dbHelper.getSongsRandom(5, "Suggested");
-        SongList trendingList = dbHelper.getSongsRandom(5, "Trending");
-        SongList recentList = dbHelper.getSongsRandom(0, "Recents");
-
-
-        // Include playlists into song library
-        songLibrary.add(suggestedList);
-        songLibrary.add(trendingList);
-        songLibrary.add(recentList);
 
         // instantiate ViewModel
-        SongLibraryViewModel sharedViewModel = new ViewModelProvider(requireActivity()).get(SongLibraryViewModel.class);
-        // Set global song library
-        sharedViewModel.setPlayList(songLibrary);
+        sharedViewModel = new ViewModelProvider(requireActivity()).get(SongLibraryViewModel.class);
 
+        // initialize playlist data
+        sharedViewModel.loadPlaylistData(dbHelper, true);
+        // Set global song library
 
         //
         RecyclerView recyclerView = view.findViewById(R.id.playlist_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(new PlaylistAdapter(songLibrary));
+        recyclerView.setAdapter(new PlaylistAdapter(sharedViewModel));
 
         return view;
 

@@ -4,4 +4,5 @@
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
     <string name="title_playlist">Playlist\n</string>
+    <string name="title_userplaylist">My Playlist</string>
 </resources>
