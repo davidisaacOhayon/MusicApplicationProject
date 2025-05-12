@@ -54,8 +54,9 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.SongVi
 
             // Establish dbhelper object
             SongHelper dbHelper = new SongHelper(v.getContext());
-
+            // Add song id to recents
             dbHelper.addToRecents(song.getId());
+            // Update the recents view model
             sharedViewmodel.updateRecents();
 
             // Return each attribute of song item class
@@ -63,7 +64,7 @@ public class SongListAdapter extends RecyclerView.Adapter<SongListAdapter.SongVi
             intent.putExtra("genre", song.getGenre());
             intent.putExtra("artist", song.getArtist());
             intent.putExtra("id", song.getId());
-            // start a new intent with the data returned being passed on to the new activity
+            // start the SongMenuActivity whilst passing the intent data down.
             v.getContext().startActivity(intent);
 
         });

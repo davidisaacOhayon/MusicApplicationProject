@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -54,6 +55,14 @@ public class UserPlaylistAdapter extends RecyclerView.Adapter<UserPlaylistAdapte
 
         holder.artist.setText(song.getArtist());
 
+
+        int img_id = holder.itemView.getContext().getResources().getIdentifier(
+                "cover_" + song.getId(), "drawable", holder.itemView.getContext().getPackageName()
+        );
+
+
+        holder.cover.setImageResource(img_id);
+
         holder.itemView.setOnClickListener( v -> {
             // Create new intent to allow each music item to redirect to SongMenuActivity
             Intent intent = new Intent(v.getContext(), SongMenuActivity.class);
@@ -95,10 +104,14 @@ public class UserPlaylistAdapter extends RecyclerView.Adapter<UserPlaylistAdapte
 
         TextView artist;
 
+        ImageView cover;
+
+
         public UserPlayListViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.song_title);
             artist = itemView.findViewById(R.id.song_artist);
+            cover = itemView.findViewById(R.id.song_image);
 
         }
     }
