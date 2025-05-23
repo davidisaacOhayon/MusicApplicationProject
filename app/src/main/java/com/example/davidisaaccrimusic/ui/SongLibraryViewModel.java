@@ -81,13 +81,12 @@ public class SongLibraryViewModel extends ViewModel {
 
 
     public void updateRecents(){
-        System.out.println("Updating Recents");
+
         List<SongList> currentPlaylist = this.playList.getValue();
         this.recentsPlaylist.setValue(songHelper.getRecents());
         SongList recents = this.recentsPlaylist.getValue();
 
         for (int i = 0; i < currentPlaylist.size() ; i++){
-            System.out.println(currentPlaylist.get(i).getTitle());
 
             if ("Recents".equals(currentPlaylist.get(i).getTitle())){
                 currentPlaylist.set(i, recents);
